@@ -7,3 +7,4 @@
 * remove code blocks of unused analysis in the manuscript.
 * Rerun the final analysis again and update the manuscript accordingly. 
 * Add GitHub repo URL to the paper.
+* Integrate all metadata files into one file.
