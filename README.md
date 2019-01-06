@@ -8,3 +8,6 @@
 * Rerun the final analysis again and update the manuscript accordingly. 
 * Add GitHub repo URL to the paper.
 * Integrate all metadata files into one file.
+* Add references
+* Add captions to figures
+
