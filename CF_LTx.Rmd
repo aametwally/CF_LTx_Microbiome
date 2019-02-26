@@ -3,9 +3,9 @@ title: "WASHU Cystic Fibrosis Lung Transplant Microbiome Project"
 author: "Ahmed A Metwally (ametwa2@uic.edu)"
 date: "2/24/2019"
 output:
-  html_document: default
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
+  html_document: default
 ---
 
 
@@ -22,10 +22,6 @@ library("MetaLonDA")
 library("zoo")
 library('plyr')
 library('reshape2')
-
-
-## Set working directory
-setwd("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/UIC/LungTransplantWASHU/manuscript_prep/manuscript_v1.2/CF_LTx_Microbiome_github")
 
 ## Set seed to ensure reproducibility
 set.seed(635473)
@@ -44,15 +40,15 @@ cbbPalette_12 = c("#999999", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#00000
 ######### Prepare PhyloSeq Object ############
 ##############################################
 ### Prepare count matrix
-countTable = read.csv(file="../data/LungTxCF12_countMatrix.csv", header=TRUE, check.names = FALSE, row.names = 1)
+countTable = read.csv(file="data/LungTxCF12_countMatrix.csv", header=TRUE, check.names = FALSE, row.names = 1)
 countTable = as.matrix(countTable)
 
 ## Prepare taxa matrix
-taxaTable = read.csv(file="../data/LungTxCF12_OTUMatrix.csv", header=TRUE, check.names = FALSE, row.names = 1)
+taxaTable = read.csv(file="data/LungTxCF12_OTUMatrix.csv", header=TRUE, check.names = FALSE, row.names = 1)
 taxaTable = as.matrix(taxaTable)
 
 ## Prepare metadata matrix
-meta = read.csv(file="../data/Supplement_table_1_CF_12_v2.6.csv", header = TRUE)
+meta = read.csv(file="data/Supplement_table_1_CF_12_v2.6.csv", header = TRUE)
 
 ## Prepare phyloseq data object
 OTU = otu_table(countTable, taxa_are_rows = TRUE)
@@ -123,7 +119,7 @@ length(unique(tax_table(bacteria_norm)[,"Species"]))
 #############################################################
 df = as.data.frame(apply(otu_table(microbial), 2, sum))
 colnames(df)[1]="count"
-write.csv(df, file="Number of Microbial reads per sample.csv")
+write.csv(df, file="Number_microbial_reads_per_sample.csv")
 df$SampleIDFP = rownames(df)
 
 df_merge = merge(df, data.frame(sample_data(microbial)), by.x = 'SampleIDFP', by.y = 'row.names')
@@ -965,14 +961,6 @@ View(tax_table(Pseudomonadaceae_Family))
 
 
 ```{r, results='hide',eval=FALSE}
-## Load MetaLonDA v1.1.4
-source("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/Stanford/MetaLonDA_dev/v1.1.4/MetaLonDA/R/CurveFitting.R")
-source("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/Stanford/MetaLonDA_dev/v1.1.4/MetaLonDA/R/Visualization.R")
-source("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/Stanford/MetaLonDA_dev/v1.1.4/MetaLonDA/R/Permutation.R")
-source("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/Stanford/MetaLonDA_dev/v1.1.4/MetaLonDA/R/Normalization.R")
-source("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/Stanford/MetaLonDA_dev/v1.1.4/MetaLonDA/R/Metalonda.R")
-
-
 ### MetaLonDA on Phyla
 ## Change level to change the rank on which MetaLonDA needs to test
 level =  "Phylum"
