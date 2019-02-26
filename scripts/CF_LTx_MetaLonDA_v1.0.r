@@ -12,8 +12,8 @@ dev.off()
 rm(list=ls())
 
 
-setwd("/Users/ahmedmetwally/Dropbox/LungTransplantWASHU/CF_LTx_Microbiome/")
-setwd("D:/Dropbox/LungTransplantWASHU/CF_LTx_Microbiome/")
+setwd("/Users/ahmedmetwally/Box Sync/Ahmed Metwally's Files/LungTransplantWASHU/CF_LTx_Microbiome/")
+#setwd("D:/Dropbox/LungTransplantWASHU/CF_LTx_Microbiome/")
 
 
 
@@ -70,6 +70,44 @@ otu_matrix_norm = as.data.frame(counts(phseq_dds_est, normalized=TRUE))
 OTU_norm = otu_table(otu_matrix_norm, taxa_are_rows = TRUE)
 physeq_norm = phyloseq(OTU_norm, TAX, META)
 
+
+
+
+##### Test NMDS
+# Color palettes:
+cbPalette  = c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbbPalette = c("#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000", "#E69F00", "#56B4E9", "#009E73")
+cbPalette  = c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbbPalette_10 = c("#999999", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000", "#E69F00", "#56B4E9", "#009E73", "darkorchid")
+cbbPalette_9 = c("#56B4E9", "sienna1", "#009E73", "darkorchid",  "#F0E442", "#0072B2", "#CC79A7", "#999999", "#000000")
+cbbPalette_12 = c("#999999", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000", "#E69F00", "#56B4E9", "#009E73", "darkorchid",
+                  "mistyrose1", "sienna1")
+
+
+# eukaryota = subset_taxa(physeq_norm, Superkingdom == "Eukaryota")
+# microbial = subset_taxa(physeq_norm, Superkingdom != "Eukaryota")
+# ord_nmds_jaccard = ordinate(microbial, method = "NMDS", distance = "jaccard")
+# write.csv(ord_nmds_jaccard$points, file = "ltx_washu_samples_nmds_jaccard_norm_2.csv")
+# jpeg("LgTxCF1x2_ordination_nmds_jaccard_v0.6_norm_individual.jpg", res = 300, height = 15, width = 15, units = 'cm')
+# plot_ordination(microbial, ord_nmds_jaccard, color = "SUBJECT.WUTX") +  geom_point(size = 3) +
+#   ggtitle("NMDS using Jaccard") +  
+#   scale_fill_manual(values = cbbPalette_12) +
+#   #scale_color_manual(values=c( "red", "midnightblue"),  breaks=c("BO", "non-BO")) +
+#   #scale_fill_brewer(palette = "Set3")
+#   #labs(y = "# reads", x = "Sample") + theme_bw() +
+#   #scale_y_continuous(breaks = c(0, 1)) + 
+#   theme_bw() + 
+#   theme(axis.text.x = element_text(colour="black", size=10, angle=0, hjust=0.5, vjust=0.5, face="plain"),
+#         axis.text.y = element_text(colour="black", size=10, angle=0, hjust=1, vjust=0.5, face="plain"),
+#         axis.title.x = element_text(colour="black", size=15, angle=0, hjust=.5, vjust=0.5, face="bold"),
+#         axis.title.y = element_text(colour="black", size=15, angle=90, hjust=.5, vjust=.5, face="bold"),
+#         legend.text=element_text(size=15, face="plain"), 
+#         legend.title = element_blank(),
+#         plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+#         legend.position = "top",
+#         strip.text = element_text(size=12, face = "bold")) +
+#   guides(colour = guide_legend(nrow = 1))
+# dev.off() 
 
 
 #####################################################
