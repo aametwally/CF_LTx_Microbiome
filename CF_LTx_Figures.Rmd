@@ -33,7 +33,6 @@ cbbPalette_10 = c("#999999", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#00000
                   "#E69F00", "#56B4E9", "#009E73", "darkorchid")
 cbbPalette_12 = c("#999999", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000", 
                   "#E69F00", "#56B4E9", "#009E73", "darkorchid", "mistyrose1", "sienna1")
-
 ```
 
 
@@ -52,7 +51,7 @@ taxaTable = read.csv(file="data/LungTxCF12_OTUMatrix.csv", header=TRUE,
 taxaTable = as.matrix(taxaTable)
 
 ## Prepare metadata matrix
-meta = read.csv(file="data/Supplement_table_1_CF_12_v2.6.csv", header = TRUE)
+meta = read.csv(file="data/Supplement_table_1_CF_12_v2.7.csv", header = TRUE)
 
 ## Prepare phyloseq data object
 OTU = otu_table(countTable, taxa_are_rows = TRUE)
@@ -303,6 +302,22 @@ dev.off()
 
 ```{r,warning=FALSE}
 ############################################
+#### Subset phyla for metadata file    #####
+############################################
+
+phyla = tax_glom(bacteria_norm, taxrank="Phylum")
+phyla.RA = transform_sample_counts(phyla, function(x) x / sum(x))
+
+phyla.RA.top4 = subset_taxa(phyla.RA, Phylum %in% c("Actinobacteria", "Bacteroidetes", "Firmicutes", "Proteobacteria"))
+write.csv(t(otu_table(phyla.RA.top4)), file = "phyla.RA.top4.csv")
+```
+
+
+
+
+
+```{r,warning=FALSE}
+############################################
 #### Subset top Proteobacteria genera  #####
 ############################################
 proteo = subset_taxa(bacteria_norm, Phylum == "Proteobacteria")
@@ -457,7 +472,7 @@ dev.off()
 
 ```{r}
 ## Plot NMDS labled by subject
-jpeg("LgTxCF12_ordination_nmds_jaccard_subjects_v0.4.jpg", res = 300, height = 15, width = 20, units = 'cm')
+jpeg("LgTxCF12_ordination_nmds_jaccard_subjects_v0.4.jpg", res = 300, height = 15, width = 15, units = 'cm')
 plot_ordination(microbial_norm, ord_nmds_jaccard, color = "AnnotatedID") +
   geom_point(size = 3) +
   ggtitle("NMDS using Jaccard") +  
@@ -485,7 +500,7 @@ dev.off()
 
 ```{r}
 ## Plot NMDS labled by time
-jpeg("LgTxCF12_ordination_nmds_jaccard_days_v0.4.jpg", res = 300, height = 15, width = 20, units = 'cm')
+jpeg("LgTxCF12_ordination_nmds_jaccard_days_v0.4.jpg", res = 300, height = 15, width = 15, units = 'cm')
 plot_ordination(microbial_norm, ord_nmds_jaccard, color = "TimeAfterTransplantation") +
   geom_point(size = 3) +
   ggtitle("NMDS using Jaccard") +  
@@ -1140,7 +1155,7 @@ output_all_nbinomial_class = metalondaAll(Count = microbial.glom.count, Time = T
 
 
 
-```{r, results='hide',eval=FALSE}
+```{r, results='hide'}
 ### MetaLonDA on order level
 ## Change level to change the rank on which MetaLonDA needs to test
 level =  "Order"
@@ -1179,8 +1194,8 @@ output_all_nbinomial_order= metalondaAll(Count = microbial.glom.count, Time = Ti
 
 
 
-```{r, results='hide',eval=FALSE}
-### MetaLonDA on order level
+```{r, results='hide'}
+### MetaLonDA on family level
 ## Change level to change the rank on which MetaLonDA needs to test
 level =  "Family"
 microbial.glom = tax_glom(microbial.filtered, level)
@@ -1213,6 +1228,45 @@ output_all_nbinomial_family = metalondaAll(Count = microbial.glom.count, Time = 
                                           prefix = "LTx_family", col = c("firebrick", "blue"))
 ```
 
+
+
+
+
+
+
+```{r, results='hide'}
+### MetaLonDA on genus level
+## Change level to change the rank on which MetaLonDA needs to test
+level =  "Genus"
+microbial.glom = tax_glom(microbial.filtered, level)
+dim(otu_table(microbial.glom))
+
+apply(otu_table(microbial.glom), 1 , sum)
+apply(otu_table(microbial.glom), 1 , mean)
+apply(otu_table(microbial.glom), 1 , median)
+
+## Rename rownames to be bacteria microbial name instead of the TaxID
+microbial.glom.count = as.data.frame(otu_table(microbial.glom))
+for (i in rownames(microbial.glom.count))
+{
+  x = as.vector(tax_table(microbial)[which(rownames(tax_table(microbial)) == i), level])
+  lab = sprintf("%s_%s", x, i)
+  rownames(microbial.glom.count)[which(rownames(microbial.glom.count) == i)] = lab
+  cat(i, "\n")
+}
+
+Group_real = as.vector(as.data.frame(sample_data(microbial.glom))$Outcome)
+ID_real = as.vector(as.data.frame(sample_data(microbial.glom))$AnnotatedID)
+Time_real = as.data.frame(sample_data(microbial.glom))$TimeAfterTransplantation
+
+output_all_nbinomial_genus = metalondaAll(Count = microbial.glom.count, Time = Time_real, 
+                                           Group = Group_real, ID = ID_real, 
+                                           fit.method = "nbinomial", n.perm = 1000,
+                                           num.intervals = 99, parall = FALSE,
+                                           pvalue.threshold = 0.1, adjust.method = "BH", 
+                                           time.unit = "days", norm.method = "none",
+                                          prefix = "LTx_genus", col = c("firebrick", "blue"))
+```
 
 
 
@@ -1274,4 +1328,103 @@ output_all_nbinomial_burk_species = metalondaAll(Count = microbial.glom.count,
                                                 norm.method = "none", prefix = "Lx_burk_species", 
                                                 col = c("firebrick", "blue"))
 ```
+
+
+
+```{r, results='hide',eval=FALSE}
+########################################
+##### MetaLonDA for ARG Types      ##
+########################################
+arg_data = read.csv("data/CF_ARG_Type.csv", as.is = TRUE, check.names = FALSE, header = FALSE)
+
+
+# Extract Time, Group, and ID vector
+samples.id = as.character(arg_data[1,])[-1]
+arg_samples_meta = subset(meta, SampleIDFP %in% samples.id)
+Group_real = as.vector(as.data.frame(sample_data(arg_samples_meta))$Outcome)
+ID_real = as.vector(as.data.frame(sample_data(arg_samples_meta))$AnnotatedID)
+Time_real = as.data.frame(sample_data(arg_samples_meta))$TimeAfterTransplantation
+
+## Extract countTable
+countTable = arg_data
+colnames(countTable) = as.character(arg_data[1,])
+countTable = countTable[-1,]
+rownames(countTable) = countTable[,1]
+countTable = countTable[,-1]
+
+
+### convert CountTable to integer
+countTable2 = data.frame(sapply(countTable, function(x) as.numeric(as.character(x))))
+rownames(countTable2) = rownames(countTable)
+
+# Check dimensions
+dim(countTable2)
+length((Time_real))
+length((Group_real))
+length((ID_real))
+length(unique(Time_real))
+length(unique(Group_real))
+length(unique(ID_real))
+
+
+output_all_nbinomial_arg_type = metalondaAll(Count = countTable2, Time = Time_real, 
+                                           Group = Group_real, ID = ID_real, 
+                                           fit.method = "lowess", n.perm = 1000,
+                                           num.intervals = 99, parall = FALSE,
+                                           pvalue.threshold = 0.1, adjust.method = "BH", 
+                                           time.unit = "days", norm.method = "none",
+                                          prefix = "LTx_arg_type", col = c("firebrick", "blue"),
+                                          ylabel = "Normalized Counts (ppm)")
+```
+
+
+
+```{r, results='hide',eval=FALSE}
+########################################
+##### MetaLonDA for ARG subtypes     ##
+########################################
+arg_data = read.csv("data/CF_ARG_subtype.csv", as.is = TRUE, check.names = FALSE, header = FALSE)
+
+
+# Extract Time, Group, and ID vector
+samples.id = as.character(arg_data[1,])[-1]
+arg_samples_meta = subset(meta, SampleIDFP %in% samples.id)
+Group_real = as.vector(as.data.frame(sample_data(arg_samples_meta))$Outcome)
+ID_real = as.vector(as.data.frame(sample_data(arg_samples_meta))$AnnotatedID)
+Time_real = as.data.frame(sample_data(arg_samples_meta))$TimeAfterTransplantation
+
+## Extract countTable
+countTable = arg_data
+colnames(countTable) = as.character(arg_data[1,])
+countTable = countTable[-1,]
+rownames(countTable) = countTable[,1]
+countTable = countTable[,-1]
+
+
+### convert CountTable to integer
+countTable2 = data.frame(sapply(countTable, function(x) as.numeric(as.character(x))))
+rownames(countTable2) = rownames(countTable)
+
+# Check dimensions
+dim(countTable2)
+length((Time_real))
+length((Group_real))
+length((ID_real))
+length(unique(Time_real))
+length(unique(Group_real))
+length(unique(ID_real))
+
+
+output_all_nbinomial_arg_subtype = metalondaAll(Count = countTable2, Time = Time_real, 
+                                           Group = Group_real, ID = ID_real, 
+                                           fit.method = "lowess", n.perm = 1000,
+                                           num.intervals = 99, parall = FALSE,
+                                           pvalue.threshold = 0.1, adjust.method = "BH", 
+                                           time.unit = "days", norm.method = "none",
+                                          prefix = "LTx_arg_subtype", col = c("firebrick", "blue"),
+                                          ylabel = "Normalized Counts (ppm)")
+```
+
+
+
 
